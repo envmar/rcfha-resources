@@ -1,16 +1,42 @@
 console.log("RCFHA loader.js: script loaded from jsDelivr");
 
-// Wait until RAMP finishes building the DOM
+// Wait until DOM is parsed
 document.addEventListener("DOMContentLoaded", () => {
-  console.log("DOM ready, injecting banner");
+  console.log("DOM ready, searching for placeholder comment");
 
-  const banner = document.createElement("div");
-  banner.textContent = "Loader.js is running inside RAMP";
-  banner.style.background = "#0066cc";
-  banner.style.color = "white";
-  banner.style.padding = "6px";
-  banner.style.fontSize = "14px";
-  banner.style.marginBottom = "10px";
+  // Walk the DOM tree to find the comment node
+  const walker = document.createTreeWalker(
+    document,
+    NodeFilter.SHOW_COMMENT,
+    null,
+    false
+  );
 
-  document.body.prepend(banner);
+  let found = null;
+
+  while (walker.nextNode()) {
+    if (walker.currentNode.nodeValue.trim() === "RCFHA-RESOURCE-BLOCK") {
+      found = walker.currentNode;
+      break;
+    }
+  }
+
+  if (!found) {
+    console.warn("Placeholder comment not found");
+    return;
+  }
+
+  console.log("Placeholder comment found, injecting test block");
+
+  // Create a test block to inject
+  const testBlock = document.createElement("div");
+  testBlock.textContent = "Injected near RCFHA-RESOURCE-BLOCK";
+  testBlock.style.background = "#009900";
+  testBlock.style.color = "white";
+  testBlock.style.padding = "6px";
+  testBlock.style.margin = "10px 0";
+  testBlock.style.fontSize = "14px";
+
+  // Insert right after the comment
+  found.parentNode.insertBefore(testBlock, found.nextSibling);
 });
