@@ -1,12 +1,16 @@
 console.log("RCFHA loader.js: script loaded from jsDelivr");
 
-// Try touching the DOM safely
-const testBanner = document.createElement("div");
-testBanner.textContent = "Loader.js is running inside RAMP";
-testBanner.style.background = "#0066cc";
-testBanner.style.color = "white";
-testBanner.style.padding = "6px";
-testBanner.style.fontSize = "14px";
-testBanner.style.marginBottom = "10px";
+// Wait until RAMP finishes building the DOM
+document.addEventListener("DOMContentLoaded", () => {
+  console.log("DOM ready, injecting banner");
 
-document.body.prepend(testBanner);
+  const banner = document.createElement("div");
+  banner.textContent = "Loader.js is running inside RAMP";
+  banner.style.background = "#0066cc";
+  banner.style.color = "white";
+  banner.style.padding = "6px";
+  banner.style.fontSize = "14px";
+  banner.style.marginBottom = "10px";
+
+  document.body.prepend(banner);
+});
