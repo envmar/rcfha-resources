@@ -1,42 +1,40 @@
-console.log("RCFHA loader.js: script loaded from jsDelivr");
+console.log("RCFHA loader.js: script loaded");
 
-// Wait until DOM is parsed
-document.addEventListener("DOMContentLoaded", () => {
-  console.log("DOM ready, searching for placeholder comment");
+document.addEventListener("DOMContentLoaded", async () => {
+  console.log("DOM ready, searching for target heading");
 
-  // Walk the DOM tree to find the comment node
-  const walker = document.createTreeWalker(
-    document,
-    NodeFilter.SHOW_COMMENT,
-    null,
-    false
-  );
+  // Find the exact heading text
+  const headings = Array.from(document.querySelectorAll("h3"));
+  const target = headings.find(h => h.textContent.trim() === "League Documents and Information");
 
-  let found = null;
-
-  while (walker.nextNode()) {
-    if (walker.currentNode.nodeValue.trim() === "RCFHA-RESOURCE-BLOCK") {
-      found = walker.currentNode;
-      break;
-    }
-  }
-
-  if (!found) {
-    console.warn("Placeholder comment not found");
+  if (!target) {
+    console.warn("Target heading not found: 'League Documents and Information'");
     return;
   }
 
-  console.log("Placeholder comment found, injecting test block");
+  console.log("Heading found, fetching replacement content");
 
-  // Create a test block to inject
-  const testBlock = document.createElement("div");
-  testBlock.textContent = "Injected near RCFHA-RESOURCE-BLOCK";
-  testBlock.style.background = "#009900";
-  testBlock.style.color = "white";
-  testBlock.style.padding = "6px";
-  testBlock.style.margin = "10px 0";
-  testBlock.style.fontSize = "14px";
+  try {
+    // GitHub → jsDelivr URL for your HTML block
+    const url = "https://cdn.jsdelivr.net/gh/envmar/rcfha-resources@latest/league-documents-and-information.html";
 
-  // Insert right after the comment
-  found.parentNode.insertBefore(testBlock, found.nextSibling);
+    const res = await fetch(url);
+
+    if (!res.ok) {
+      throw new Error(`Fetch failed: ${res.status}`);
+    }
+
+    const html = await res.text();
+
+    // Create wrapper for injected HTML
+    const wrapper = document.createElement("div");
+    wrapper.innerHTML = html;
+
+    // Replace the heading entirely
+    target.replaceWith(wrapper);
+
+    console.log("Content replaced successfully");
+  } catch (err) {
+    console.error("Injection error:", err);
+  }
 });
